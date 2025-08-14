@@ -48,6 +48,24 @@
 		*::-webkit-scrollbar-thumb { background: #3b4963; border-radius: 8px; }
 		.leaflet-container { background: #0b1220; }
 		input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(1) opacity(.7); }
+
+		.input-field-group{
+            position: relative;
+        }
+        .input-field-group label{
+            position: absolute;
+            top: -8px;
+            left: 12px;
+            padding: 0 5px;
+            background-color: #0c1220;
+        }
+        .asterisk{
+            color: red;
+        }
+        .input-field-group select{
+            padding-top: 12px;
+        }
+
 	</style>
 </head>
 <body class="h-full bg-surface text-slate-200">
@@ -87,42 +105,42 @@
 			</div>
 
 			<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-3">
-				<div class="col-span-1">
-					<label class="block text-xs text-slate-400 mb-1">CompStat Totals</label>
+				<div class="col-span-1 input-field-group">
+					<label class="block text-xs text-slate-400 mb-1">CompStat Totals <span class="asterisk">*</span></label>
 					<select class="w-full rounded-lg bg-mid px-3 py-2 text-sm ring-1 ring-slate-700/70 focus:ring-accent/60">
 						<option>2 Weeks</option>
 						<option>4 Weeks</option>
 						<option>YTD</option>
 					</select>
 				</div>
-				<div class="col-span-1">
-					<label class="block text-xs text-slate-400 mb-1">Agency</label>
+				<div class="col-span-1 input-field-group">
+					<label class="block text-xs text-slate-400 mb-1">Agency <span class="asterisk">*</span></label>
 					<select class="w-full rounded-lg bg-mid px-3 py-2 text-sm ring-1 ring-slate-700/70 focus:ring-accent/60">
 						<option>Oakland PD-CA0011...</option>
 						<option>San Jose PD</option>
 					</select>
 				</div>
-				<div class="col-span-1">
-					<label class="block text-xs text-slate-400 mb-1">Group By</label>
+				<div class="col-span-1 input-field-group">
+					<label class="block text-xs text-slate-400 mb-1">Group By <span class="asterisk">*</span></label>
 					<select class="w-full rounded-lg bg-mid px-3 py-2 text-sm ring-1 ring-slate-700/70 focus:ring-accent/60">
 						<option>Agency Mapping</option>
 						<option>Beat</option>
 						<option>District</option>
 					</select>
 				</div>
-				<div class="col-span-1">
-					<label class="block text-xs text-slate-400 mb-1">Enter End Date Of Report</label>
+				<div class="col-span-1 input-field-group">
+					<label class="block text-xs text-slate-400 mb-1">Enter End Date Of Report <span class="asterisk">*</span></label>
 					<input type="date" value="2025-05-24" class="w-full rounded-lg bg-mid px-3 py-2 text-sm ring-1 ring-slate-700/70 focus:ring-accent/60" />
 				</div>
-				<div class="col-span-1">
-					<label class="block text-xs text-slate-400 mb-1">Crime Group</label>
+				<div class="col-span-1 input-field-group">
+					<label class="block text-xs text-slate-400 mb-1">Crime Group <span class="asterisk">*</span></label>
 					<select class="w-full rounded-lg bg-mid px-3 py-2 text-sm ring-1 ring-slate-700/70 focus:ring-accent/60">
 						<option>One</option>
 						<option>All</option>
 					</select>
 				</div>
-				<div class="col-span-1">
-					<label class="block text-xs text-slate-400 mb-1">Saved Parameters</label>
+				<div class="col-span-1 input-field-group input-field-group">
+					<label class="block text-xs text-slate-400 mb-1">Saved Parameters <span class="asterisk">*</span></label>
 					<div class="flex gap-2">
 						<select class="w-full rounded-lg bg-mid px-3 py-2 text-sm ring-1 ring-slate-700/70 focus:ring-accent/60">
 							<option>Additional Filter Parameter #1</option>
