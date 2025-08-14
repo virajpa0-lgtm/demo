@@ -1,0 +1,365 @@
+<!doctype html>
+<html lang="en" class="h-full">
+<head>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<title>CompStat View (Demo)</title>
+
+	<!-- Tailwind (CDN) -->
+	<script src="https://cdn.tailwindcss.com"></script>
+	<script>
+		tailwind.config = {
+			darkMode: 'class',
+			theme: {
+				extend: {
+					colors: {
+						surface: '#0c1220',
+						panel: '#0f172a',
+						mid: '#101826',
+						accent: '#60a5fa',
+						muted: '#93a4bc',
+					},
+					boxShadow: {
+						'inset-1': 'inset 0 1px 0 rgba(255,255,255,0.02)',
+						card: '0 1px 2px rgba(0,0,0,0.4), 0 8px 24px rgba(0,0,0,0.35)',
+					},
+				}
+			}
+		};
+	</script>
+
+	<!-- Leaflet -->
+	<link
+		rel="stylesheet"
+		href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+		integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+		crossorigin=""
+	/>
+	<script
+		src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+		integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+		crossorigin=""
+	></script>
+
+	<style>
+		/* Subtle scrollbars for dark UI */
+		* { scrollbar-width: thin; scrollbar-color: #3b4963 transparent; }
+		*::-webkit-scrollbar { height: 8px; width: 10px; }
+		*::-webkit-scrollbar-thumb { background: #3b4963; border-radius: 8px; }
+		.leaflet-container { background: #0b1220; }
+		input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(1) opacity(.7); }
+	</style>
+</head>
+<body class="h-full bg-surface text-slate-200">
+	<div class="min-h-full">
+
+		<!-- Top bar -->
+		<header class="px-6 lg:px-8 py-4 border-b border-slate-800/70 bg-gradient-to-b from-[#0b1425] to-surface">
+			<div class="flex items-center gap-3 text-sm text-slate-400">
+				<span class="opacity-80">Dashboard</span>
+				<span>›</span>
+				<span class="opacity-80">CompStat</span>
+				<span>›</span>
+				<span class="opacity-80">Compstat-report-v2</span>
+			</div>
+			<div class="mt-3 flex items-center gap-4">
+				<h1 class="text-2xl font-semibold tracking-tight">CompStat View</h1>
+				<div class="ml-auto flex items-center gap-3">
+					<label class="relative inline-flex items-center">
+						<input placeholder="Search" class="peer w-72 rounded-lg bg-mid text-sm text-slate-200 placeholder:text-slate-500 px-9 py-2 outline-none ring-1 ring-slate-700/70 focus:ring-accent/60 shadow-inset-1" />
+						<svg class="absolute left-3 top-2.5 h-4 w-4 text-slate-400 peer-focus:text-accent" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8.5 3a5.5 5.5 0 1 1 3.473 9.787l3.12 3.12a1 1 0 0 1-1.414 1.414l-3.12-3.12A5.5 5.5 0 0 1 8.5 3Zm-3.5 5.5a3.5 3.5 0 1 0 7 0a3.5 3.5 0 0 0-7 0Z" clip-rule="evenodd"/></svg>
+					</label>
+					<div class="flex items-center gap-2 rounded-full bg-mid px-3 py-1 ring-1 ring-slate-700/80">
+						<div class="h-7 w-7 rounded-full bg-slate-600/40 grid place-items-center">JD</div>
+						<div class="text-xs leading-tight">
+							<div class="text-slate-200/90">Hi, John Doe</div>
+							<div class="text-slate-400/80">Crime analyst</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</header>
+
+		<!-- Filters -->
+		<section class="px-6 lg:px-8 py-4 space-y-3">
+			<div class="flex items-center gap-2">
+				<button class="rounded-full bg-mid px-3 py-2 text-sm ring-1 ring-slate-700/70 hover:ring-slate-600">Go Back</button>
+			</div>
+
+			<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-3">
+				<div class="col-span-1">
+					<label class="block text-xs text-slate-400 mb-1">CompStat Totals</label>
+					<select class="w-full rounded-lg bg-mid px-3 py-2 text-sm ring-1 ring-slate-700/70 focus:ring-accent/60">
+						<option>2 Weeks</option>
+						<option>4 Weeks</option>
+						<option>YTD</option>
+					</select>
+				</div>
+				<div class="col-span-1">
+					<label class="block text-xs text-slate-400 mb-1">Agency</label>
+					<select class="w-full rounded-lg bg-mid px-3 py-2 text-sm ring-1 ring-slate-700/70 focus:ring-accent/60">
+						<option>Oakland PD-CA0011...</option>
+						<option>San Jose PD</option>
+					</select>
+				</div>
+				<div class="col-span-1">
+					<label class="block text-xs text-slate-400 mb-1">Group By</label>
+					<select class="w-full rounded-lg bg-mid px-3 py-2 text-sm ring-1 ring-slate-700/70 focus:ring-accent/60">
+						<option>Agency Mapping</option>
+						<option>Beat</option>
+						<option>District</option>
+					</select>
+				</div>
+				<div class="col-span-1">
+					<label class="block text-xs text-slate-400 mb-1">Enter End Date Of Report</label>
+					<input type="date" value="2025-05-24" class="w-full rounded-lg bg-mid px-3 py-2 text-sm ring-1 ring-slate-700/70 focus:ring-accent/60" />
+				</div>
+				<div class="col-span-1">
+					<label class="block text-xs text-slate-400 mb-1">Crime Group</label>
+					<select class="w-full rounded-lg bg-mid px-3 py-2 text-sm ring-1 ring-slate-700/70 focus:ring-accent/60">
+						<option>One</option>
+						<option>All</option>
+					</select>
+				</div>
+				<div class="col-span-1">
+					<label class="block text-xs text-slate-400 mb-1">Saved Parameters</label>
+					<div class="flex gap-2">
+						<select class="w-full rounded-lg bg-mid px-3 py-2 text-sm ring-1 ring-slate-700/70 focus:ring-accent/60">
+							<option>Additional Filter Parameter #1</option>
+						</select>
+						<button class="rounded-lg bg-mid px-3 py-2 text-sm ring-1 ring-slate-700/70 hover:ring-slate-600">Edit</button>
+					</div>
+				</div>
+			</div>
+
+			<div class="flex flex-wrap gap-2">
+			    <button class="rounded-md bg-mid px-3 py-2 text-sm ring-1 ring-slate-700/70 hover:ring-slate-600">Expand All</button>
+			    <button class="rounded-md bg-mid px-3 py-2 text-sm ring-1 ring-slate-700/70 hover:ring-slate-600">Clear Selection</button>
+			    <button class="rounded-md bg-mid px-3 py-2 text-sm ring-1 ring-slate-700/70 hover:ring-slate-600">Show Zero Categories</button>
+			</div>
+		</section>
+
+		<!-- Tabs + Map controls -->
+		<section class="px-6 lg:px-8">
+			<div class="flex items-center gap-2">
+				<button class="px-3 py-1.5 rounded-md text-sm text-slate-400 ring-1 ring-transparent hover:bg-mid/60">Charts</button>
+				<button class="px-3 py-1.5 rounded-md text-sm bg-mid ring-1 ring-slate-700/70 shadow-inset-1">Maps</button>
+				<button class="px-3 py-1.5 rounded-md text-sm text-slate-400 ring-1 ring-transparent hover:bg-mid/60">Details</button>
+
+				<div class="ml-auto flex items-center gap-3">
+					<label class="text-xs text-slate-400">Map Size</label>
+					<select id="mapSize" class="rounded-md bg-mid px-2.5 py-1.5 text-sm ring-1 ring-slate-700/70">
+						<option value="md">Map Size</option>
+						<option value="sm">Compact</option>
+						<option value="lg">Large</option>
+					</select>
+
+					<label class="inline-flex items-center gap-2 text-sm">
+						<input id="syncToggle" type="checkbox" class="h-4 w-4 accent-accent" checked />
+						<span>Keep Maps in sync</span>
+					</label>
+
+					<label class="inline-flex items-center gap-2 text-sm">
+						<input id="autoZoomToggle" type="checkbox" class="h-4 w-4 accent-accent" />
+						<span>Auto Zoom</span>
+					</label>
+
+					<button id="printBtn" class="rounded-md bg-mid px-3 py-2 text-sm ring-1 ring-slate-700/70 hover:ring-slate-600">Print</button>
+				</div>
+			</div>
+		</section>
+
+		<!-- Content -->
+		<main class="px-6 lg:px-8 py-4">
+			<div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+
+				<!-- Table -->
+				<section class="col-span-1 rounded-xl bg-panel ring-1 ring-slate-800/80 shadow-card overflow-hidden">
+					<header class="flex items-center justify-between px-4 py-3 border-b border-slate-800/70">
+						<h2 class="font-medium">Crime Analytics</h2>
+						<button class="text-slate-400 hover:text-slate-200">
+							<svg width="18" height="18" viewBox="0 0 20 20" fill="currentColor"><path d="M10 3a1.5 1.5 0 110 3 1.5 1.5 0 010-3zm0 5.5a1.5 1.5 0 110 3 1.5 1.5 0 010-3zm1.5 7a1.5 1.5 0 10-3 0 1.5 1.5 0 003 0z"/></svg>
+						</button>
+					</header>
+					<div class="overflow-auto">
+						<table class="min-w-full text-sm">
+							<thead class="bg-mid/50 text-slate-400">
+								<tr class="text-left">
+									<th class="px-4 py-2 font-medium">Category</th>
+									<th class="px-4 py-2 font-medium">Week 2020 Sep 25</th>
+									<th class="px-4 py-2 font-medium">YTD 2025</th>
+									<th class="px-4 py-2 font-medium">YTD 2024</th>
+									<th class="px-4 py-2 font-medium">Chg% ↑</th>
+									<th class="px-4 py-2 font-medium">YTD 2023</th>
+									<th class="px-4 py-2 font-medium">YTD 2022</th>
+								</tr>
+							</thead>
+							<tbody id="crimeRows" class="divide-y divide-slate-800/70"></tbody>
+						</table>
+					</div>
+					<footer class="px-4 py-2 text-[11px] text-rose-300/80 border-t border-slate-800/70">
+						*Note: Victims are not being counted; see additional parameter’s below for more information
+					</footer>
+				</section>
+
+				<!-- Maps -->
+				<section class="col-span-1 lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4">
+					<div class="rounded-xl bg-panel ring-1 ring-slate-800/80 shadow-card overflow-hidden">
+						<div id="mapA" class="h-[420px] md:h-[500px]"></div>
+						<div class="px-3 py-2 border-t border-slate-800/70 text-xs text-slate-300">
+							<span class="inline-flex items-center gap-2">
+								<span class="inline-block h-2.5 w-2.5 rounded-full bg-blue-400/80"></span> Burglary
+								<span class="inline-block h-2.5 w-2.5 rounded-full bg-amber-400/80 ml-3"></span> Assault
+								<span class="inline-block h-2.5 w-2.5 rounded-full bg-cyan-300/80 ml-3"></span> Larceny
+							</span>
+						</div>
+					</div>
+					<div class="rounded-xl bg-panel ring-1 ring-slate-800/80 shadow-card overflow-hidden">
+						<div id="mapB" class="h-[420px] md:h-[500px]"></div>
+					</div>
+				</section>
+
+			</div>
+		</main>
+
+		<footer class="px-6 lg:px-8 py-4 text-xs text-slate-500/80">
+			<div class="flex items-center justify-between">
+				<div>© 2025 | All rights reserved</div>
+				<div class="italic">SoundThinking</div>
+			</div>
+		</footer>
+	</div>
+
+	<script>
+		// ---- Table data (demo) ----
+		const demoRows = [
+			{ category: 'Robbery', w: '—', y25: 1675, y24: 1877, chg: 17, y23: 1590, y22: 1498 },
+			{ category: '11A-Rape', w: '—', y25: '-', y24: 17, chg: 17, y23: 17, y22: 16 },
+			{ category: '13A-Aggravated Assault', w: 2, y25: 2, y24: 25, chg: 25, y23: 25, y22: 21 },
+			{ category: '13B-Simple Assault', w: 32, y25: 32, y24: 4, chg: 32, y23: 32, y22: 31 },
+			{ category: '13C-Intimidation', w: 5, y25: 5, y24: 17, chg: 350, y23: 5, y22: 5 },
+			{ category: '23C-Shoplifting', w: 9, y25: 9, y24: 23, chg: 700, y23: 9, y22: 9 },
+			{ category: '23D-Theft From Building', w: 81, y25: 81, y24: 1, chg: 2900, y23: 81, y22: 81 },
+		];
+		const tbody = document.getElementById('crimeRows');
+		for (const r of demoRows) {
+			const tr = document.createElement('tr');
+			tr.innerHTML = `
+				<td class="px-4 py-2 whitespace-nowrap"><div class="inline-flex items-center gap-2"><span class="h-2 w-2 rounded-full bg-slate-500/70"></span>${r.category}</div></td>
+				<td class="px-4 py-2">${r.w}</td>
+				<td class="px-4 py-2">${r.y25}</td>
+				<td class="px-4 py-2">${r.y24}</td>
+				<td class="px-4 py-2 text-emerald-300">${r.chg}</td>
+				<td class="px-4 py-2">${r.y23}</td>
+				<td class="px-4 py-2">${r.y22}</td>
+			`;
+			tbody.appendChild(tr);
+		}
+
+		// ---- Maps (Leaflet) ----
+		const cartoDark = 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png';
+		const cartoAttrib = '&copy; <a href="https://carto.com/attributions">CARTO</a>';
+
+		const center = [37.7749, -122.2712]; // Oakland area
+		const mapA = L.map('mapA', { zoomControl: false }).setView(center, 11);
+		const mapB = L.map('mapB', { zoomControl: false }).setView(center, 11);
+
+		L.tileLayer(cartoDark, { attribution: cartoAttrib, subdomains: 'abcd', maxZoom: 19 }).addTo(mapA);
+		L.tileLayer(cartoDark, { attribution: cartoAttrib, subdomains: 'abcd', maxZoom: 19 }).addTo(mapB);
+
+		L.control.zoom({ position: 'bottomright' }).addTo(mapA);
+		L.control.zoom({ position: 'bottomright' }).addTo(mapB);
+
+		function jitter(base, amt) {
+			return base + (Math.random() - 0.5) * amt;
+		}
+		const categories = [
+			{ name: 'Burglary', color: '#60a5fa' },
+			{ name: 'Assault', color: '#f59e0b' },
+			{ name: 'Larceny', color: '#22d3ee' },
+		];
+
+		function addRandomPoints(map, seed = 25) {
+			const layers = [];
+			for (let i = 0; i < seed; i++) {
+				const cat = categories[i % categories.length];
+				const lat = jitter(center[0], 0.25);
+				const lng = jitter(center[1], 0.35);
+				const circle = L.circleMarker([lat, lng], {
+					radius: 7,
+					color: cat.color,
+					fillColor: cat.color,
+					fillOpacity: 0.35,
+					weight: 2,
+				}).bindPopup(`<b>${cat.name}</b><br/>#${i + 1}`);
+				circle.addTo(map);
+				layers.push(circle);
+			}
+			return layers;
+		}
+
+		const layersA = addRandomPoints(mapA, 40);
+		const layersB = addRandomPoints(mapB, 28);
+
+		function boundsForLayers(layers) {
+			const group = L.featureGroup(layers);
+			return group.getBounds();
+		}
+
+		// Auto Zoom toggle
+		const autoZoomToggle = document.getElementById('autoZoomToggle');
+		function doAutoZoom() {
+			mapA.fitBounds(boundsForLayers(layersA).pad(0.25));
+			mapB.fitBounds(boundsForLayers(layersB).pad(0.25));
+		}
+		autoZoomToggle.addEventListener('change', () => {
+			if (autoZoomToggle.checked) doAutoZoom();
+		});
+
+		// Sync maps
+		let syncing = true;
+		const syncToggle = document.getElementById('syncToggle');
+		let applyingSync = false;
+
+		function syncHandler(source, target) {
+			return function () {
+				if (!syncing) return;
+				if (applyingSync) return;
+				applyingSync = true;
+				target.setView(source.getCenter(), source.getZoom(), { animate: false });
+				applyingSync = false;
+			};
+		}
+		mapA.on('move', syncHandler(mapA, mapB));
+		mapB.on('move', syncHandler(mapB, mapA));
+
+		syncToggle.addEventListener('change', () => {
+			syncing = syncToggle.checked;
+		});
+
+		// Map size control
+		const mapSize = document.getElementById('mapSize');
+		const sizeClass = {
+			sm: 'h-[340px] md:h-[380px]',
+			md: 'h-[420px] md:h-[500px]',
+			lg: 'h-[560px] md:h-[660px]',
+		};
+		function setSize(value) {
+			for (const id of ['mapA', 'mapB']) {
+				const el = document.getElementById(id);
+				el.classList.remove(...Object.values(sizeClass));
+				el.classList.add(sizeClass[value]);
+				setTimeout(() => {
+					// invalidate so tiles resize properly
+					(id === 'mapA' ? mapA : mapB).invalidateSize();
+				}, 200);
+			}
+		}
+		mapSize.addEventListener('change', (e) => setSize(e.target.value));
+		setSize('md');
+
+		// Print
+		document.getElementById('printBtn').addEventListener('click', () => window.print());
+	</script>
+</body>
+</html>
